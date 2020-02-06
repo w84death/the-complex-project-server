@@ -50,18 +50,19 @@ func _exit_tree():
 func _on_data(id):
 	var payload
 	var pkt = _server.get_peer(id).get_packet().get_string_from_utf8().split("/", true)
-	lprint("Got data from player %d: %s" % [id, pkt[0]])
+	lprint("%d -> %s" % [id, pkt[0]])
 	
 	if pkt[0] == "JOIN":
 		payload = 'YOUR_ID/%s' % id
 		_server.get_peer(id).put_packet(payload.to_utf8())
 		
-		payload = 'NEW_JOIN/%s/%s/%s' % [id, '0.0,0.0,0.0', '0']
+		payload = 'NEW_JOIN/%s/%s/%s/%s' % [id, '0.0,0.0,0.0', '0', 'false']
 		for player in players_list:
 			if player.id != id:
 				_server.get_peer(player.id).put_packet(payload.to_utf8())
 		
 	if pkt[0] == "POS":
+		lprint("%d -> %s / %s" % [id, pkt[1], pkt[2]])
 		for player in players_list:
 			update_last_pos(id, pkt[1], pkt[2])
 			payload = 'POS/%s/%s/%s' % [id, pkt[1], pkt[2]]
@@ -71,10 +72,15 @@ func _on_data(id):
 	if pkt[0] == "GET_PLAYERS_LIST":
 		for player in players_list:
 			if player.id != id:
-				payload = 'NEW_JOIN/%s/%s/%s' % [player.id, player.last_pos, player.last_rot]
+				payload = 'NEW_JOIN/%s/%s/%s/%s' % [player.id, player.last_pos, player.last_rot, player.flashlight]
 				_server.get_peer(id).put_packet(payload.to_utf8())
 			
-	
+	if pkt[0] == "FLASHLIGHT":
+		lprint("%d -> flashlight %s" % [id, pkt[1]])
+		for player in players_list:
+			payload = 'FLASHLIGHT/%s/%s' % [id, pkt[1]]
+			if player.id != id:
+				_server.get_peer(player.id).put_packet(payload.to_utf8())
 	
 func add_player(id):
 	var new_player = {
