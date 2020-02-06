@@ -56,22 +56,22 @@ func _on_data(id):
 		payload = 'YOUR_ID/%s' % id
 		_server.get_peer(id).put_packet(payload.to_utf8())
 		
-		payload = 'NEW_JOIN/%s' % [id]
+		payload = 'NEW_JOIN/%s/%s/%s' % [id, '0.0,0.0,0.0', '0']
 		for player in players_list:
 			if player.id != id:
 				_server.get_peer(player.id).put_packet(payload.to_utf8())
 		
 	if pkt[0] == "POS":
 		for player in players_list:
-			payload = 'POS/%s/%s' % [id, pkt[1]]
-			update_last_pos(id, pkt[1])
+			update_last_pos(id, pkt[1], pkt[2])
+			payload = 'POS/%s/%s/%s' % [id, pkt[1], pkt[2]]
 			if player.id != id:
 				_server.get_peer(player.id).put_packet(payload.to_utf8())
 
 	if pkt[0] == "GET_PLAYERS_LIST":
 		for player in players_list:
 			if player.id != id:
-				payload = 'NEW_JOIN/%s/%s' % [player.id, player.last_position]
+				payload = 'NEW_JOIN/%s/%s/%s' % [player.id, player.last_pos, player.last_rot]
 				_server.get_peer(id).put_packet(payload.to_utf8())
 			
 	
@@ -81,6 +81,7 @@ func add_player(id):
 		'id': id,
 		'name': 'annonymous',
 		'last_pos': '0.0,0.0,0.0',
+		'last_rot': '0',
 		'flashlight': false
 	}
 	players_list.append(new_player)
@@ -91,12 +92,14 @@ func remove_player(id):
 	for p in players_list:
 		if p.id == id:
 			players_list.remove(f)
+		f += 1
 	refresh_player_list()
 	
-func update_last_pos(id, pos):
+func update_last_pos(id, pos, rot):
 	for p in players_list:
 		if p.id == id:
-			p.last_position = pos
+			p.last_pos = pos
+			p.last_rot = rot
 
 func lprint(message):
 	print(message)
