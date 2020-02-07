@@ -4,9 +4,10 @@ extends Node
 export var PORT = 9666
 var _server = WebSocketServer.new()
 var players_list = []
+var MOTD = 'Welcome to the TCPServer V%s by P1X.\nVisit p1x.in and krzysztofjankowski.com\nMost important - have fun!' % 0.9
 
 func _ready():
-	lprint("Welcome to the TCPServer. By P1X. Visit https://p1x.")
+	lprint(MOTD)
 	lprintnb("Connecting events...")
 	_server.connect("client_connected", self, "_connected")
 	_server.connect("client_disconnected", self, "_disconnected")
@@ -50,10 +51,14 @@ func _exit_tree():
 func _on_data(id):
 	var payload
 	var pkt = _server.get_peer(id).get_packet().get_string_from_utf8().split("/", true)
-	lprint("%d -> %s" % [id, pkt[0]])
+	print("%d -> %s" % [id, pkt[0]])
 	
 	if pkt[0] == "JOIN":
+		lprint("%d -> joins" % id)
 		payload = 'YOUR_ID/%s' % id
+		_server.get_peer(id).put_packet(payload.to_utf8())
+		
+		payload = 'MOTD/%s' % MOTD
 		_server.get_peer(id).put_packet(payload.to_utf8())
 		
 		payload = 'NEW_JOIN/%s/%s/%s/%s' % [id, '0.0,0.0,0.0', '0', 'false']
@@ -62,7 +67,6 @@ func _on_data(id):
 				_server.get_peer(player.id).put_packet(payload.to_utf8())
 		
 	if pkt[0] == "POS":
-		lprint("%d -> %s / %s" % [id, pkt[1], pkt[2]])
 		for player in players_list:
 			update_last_pos(id, pkt[1], pkt[2])
 			payload = 'POS/%s/%s/%s' % [id, pkt[1], pkt[2]]
@@ -70,6 +74,7 @@ func _on_data(id):
 				_server.get_peer(player.id).put_packet(payload.to_utf8())
 
 	if pkt[0] == "GET_PLAYERS_LIST":
+		lprint("%d -> asks for players list" % id)
 		for player in players_list:
 			if player.id != id:
 				payload = 'NEW_JOIN/%s/%s/%s/%s' % [player.id, player.last_pos, player.last_rot, player.flashlight]

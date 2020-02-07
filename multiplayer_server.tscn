@@ -78,7 +78,7 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="info2" type="Panel" parent="server/GUI/panels/right"]
+[node name="toolbox" type="Panel" parent="server/GUI/panels/right"]
 margin_top = 279.0
 margin_right = 200.0
 margin_bottom = 652.0
@@ -106,7 +106,7 @@ margin_bottom = 17.5
 [node name="Label" type="Label" parent="server/GUI/top/Panel"]
 anchor_right = 1.0
 anchor_bottom = 1.0
-text = "The Complex Project - GAME SERVER"
+text = "The Complex Project Server V0.9"
 align = 1
 valign = 1
 __meta__ = {
