@@ -1,0 +1,4 @@
+Welcome to the P1X Game Server.
+TCPServer V0.99
+Visit p1x.in and krzysztofjankowski.com
+Most important - have fun!
